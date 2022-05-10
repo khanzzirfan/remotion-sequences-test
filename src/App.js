@@ -3,6 +3,10 @@ import { VideoComposition } from "./VideoComposition";
 import { VideoCompositionOneRef } from "./videoCompositionOneRef";
 import { VideoCompositionSeriesSequences } from "./VideoSeriesSequences";
 import { VideoCompositionSeriesSequencesCallbackRef } from "./VideoSeriesSequencesCallbackRef";
+import { VideoCompositionWithKonvaAnim } from "./VideoCompositionWithKonvaAnim";
+import { VideoCompositionThreeCanvas } from "./VideoCompositionThreeCanvas";
+import { VideoCompositionWithKonvaImage } from "./VidCompositionWithKonvaImage";
+
 import React, { useState } from "react";
 
 const resolveRedirect = async (video) => {
@@ -156,7 +160,7 @@ export default function App() {
         <Player
           ref={playerRef}
           style={{ width: "100%", height: "100%" }}
-          component={VideoCompositionSeriesSequencesCallbackRef}
+          component={VideoCompositionThreeCanvas}
           durationInFrames={300}
           compositionWidth={1920}
           compositionHeight={1080}

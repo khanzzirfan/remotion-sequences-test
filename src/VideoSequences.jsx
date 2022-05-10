@@ -10,24 +10,27 @@ const VideoSequences = ({
   imageRef,
   durationInFrames,
   src,
-  setCanvasRef,
+  dataId,
 }) => {
-  // const video = useRef(null);
-  const [videoRef, setVideoRef] = useHookWithRefCallback();
+  // const [videoRef, setVideoRef] = useHookWithRefCallback();
+  const videoRef = React.useRef(null);
 
   /** video frame transformation */
   // Process a frame
   const onVideoFrame = useCallback(() => {
+    console.log("10000");
     if (!canvasRef.current || !videoRef.current) {
       return;
     }
+    console.log("10001");
     const context = canvasRef.current.getContext("2d");
     if (!context) {
       return;
     }
-    // context.filter = "grayscale(100%)";
+    console.log("10002");
+    context.filter = "grayscale(100%)";
     context.drawImage(videoRef.current, 0, 0, width, height);
-    imageRef.current.cache();
+    // imageRef.current.cache();
   }, [height, width]);
 
   // Synchronize the video with the canvas
@@ -50,15 +53,18 @@ const VideoSequences = ({
   return (
     <AbsoluteFill>
       <Video
-        ref={setVideoRef}
+        ref={videoRef}
         // Hide the original video tag
         style={{ opacity: 0 }}
         startFrom={startFrom}
         endAt={durationInFrames}
         src={src}
+        crossOrigin="anonymous"
+        data-id={dataId}
+        id={dataId}
       />
-      <AbsoluteFill style={{ display: "none" }}>
-        <canvas ref={setCanvasRef} width={width} height={height} />
+      <AbsoluteFill style={{ opacity: 1 }}>
+        <canvas ref={canvasRef} width={width} height={height} id={dataId} />
       </AbsoluteFill>
     </AbsoluteFill>
   );

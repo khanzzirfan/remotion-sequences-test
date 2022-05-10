@@ -8,9 +8,9 @@ import useHookWithRefCallback from "./useRefWithCallback";
 export const VideoCompositionSeriesSequencesCallbackRef = ({ data }) => {
   const { width, height } = useVideoConfig();
 
-  const [imageRef, setImageRef] = useHookWithRefCallback();
+  // const [imageRef, setImageRef] = useHookWithRefCallback();
   const [canvasRef, setCanvasRef] = useHookWithRefCallback();
-
+  const imageRef = React.useRef(null);
   console.log("canvas", canvasRef);
   console.log("image", imageRef);
   console.log("data", data);
@@ -30,7 +30,6 @@ export const VideoCompositionSeriesSequencesCallbackRef = ({ data }) => {
                   canvasRef={canvasRef}
                   imageRef={imageRef}
                   src={val.src}
-                  setCanvasRef={setCanvasRef}
                 />
 
                 {/** Render a Konva Stage with Video Canvas */}
@@ -43,7 +42,7 @@ export const VideoCompositionSeriesSequencesCallbackRef = ({ data }) => {
                         fill="red"
                         shadowBlur={10}
                       />
-                      <Image image={canvasRef.current} ref={setImageRef} />
+                      {/* <Image image={canvasRef.current} ref={setImageRef} /> */}
                     </Group>
                     <Group>
                       <Circle x={200} y={100} radius={50} fill="green" />
