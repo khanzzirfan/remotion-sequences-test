@@ -30,8 +30,10 @@ const VideoSequences = ({
     console.log("10002");
     context.filter = "grayscale(100%)";
     context.drawImage(videoRef.current, 0, 0, width, height);
-    // imageRef.current.cache();
-  }, [height, width]);
+    if (imageRef && imageRef.current) {
+      imageRef.current.cache();
+    }
+  }, [height, width, dataId]);
 
   // Synchronize the video with the canvas
   useEffect(() => {
@@ -51,7 +53,7 @@ const VideoSequences = ({
   }, [onVideoFrame]);
 
   return (
-    <AbsoluteFill>
+    <AbsoluteFill key={`inner-video-seq-${dataId}`}>
       <Video
         ref={videoRef}
         // Hide the original video tag
@@ -63,7 +65,10 @@ const VideoSequences = ({
         data-id={dataId}
         id={dataId}
       />
-      <AbsoluteFill style={{ opacity: 1 }}>
+      <AbsoluteFill
+        style={{ opacity: 0 }}
+        key={`inner-video-seq--canvas-${dataId}`}
+      >
         <canvas ref={canvasRef} width={width} height={height} id={dataId} />
       </AbsoluteFill>
     </AbsoluteFill>

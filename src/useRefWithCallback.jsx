@@ -10,8 +10,8 @@ import { useCallback, useRef } from "react";
 function useHookWithRefCallback() {
   const ref = useRef(null);
   const setRef = useCallback((node) => {
-    console.log("node passed");
-    console.log(node);
+    // console.log("node passed");
+    // console.log(node);
     if (ref.current) {
       // Make sure to cleanup any events/references added to the last instance
     }

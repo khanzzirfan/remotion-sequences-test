@@ -33,6 +33,7 @@ export const VideoCompositionWithKonvaImage = ({ data }) => {
                 from={val.start}
                 durationInFrames={val.end}
               >
+                <p>{`Sequence Running param ${val.id}`}</p>
                 <AbsoluteFill>
                   <VideoSequences
                     width={width}
@@ -43,9 +44,15 @@ export const VideoCompositionWithKonvaImage = ({ data }) => {
                     imageRef={imageRef}
                     src={val.src}
                     dataId={val.id}
+                    sequenceId={val.src}
+                    key={`videosequence-${val.id}`}
                   />
                   {/** Render a Konva Stage with Video Canvas */}
-                  {/* <Stage width={width} height={height}>
+                  <Stage
+                    width={width}
+                    height={height}
+                    key={`konvastage-${val.id}`}
+                  >
                     <Layer>
                       <Group draggable x={1} y={1}>
                         <Rect
@@ -82,7 +89,7 @@ export const VideoCompositionWithKonvaImage = ({ data }) => {
                         />
                       </Group>
                     </Layer>
-                  </Stage> */}
+                  </Stage>
                 </AbsoluteFill>
               </Sequence>
             );

@@ -15,6 +15,7 @@ export const VideoCompositionThreeCanvas = ({ data, play }) => {
   const { width, height } = useVideoConfig();
   const [videoRef, setVideoRef] = useHookWithRefCallback();
 
+  console.log("videoRef", videoRef);
   return (
     <Sequence from={0}>
       <AbsoluteFill style={container}>
@@ -30,7 +31,7 @@ export const VideoCompositionThreeCanvas = ({ data, play }) => {
                   <Video
                     ref={setVideoRef}
                     // Hide the original video tag
-                    style={{ opacity: 0 }}
+                    /// style={{ opacity: 0 }}
                     src={val.src}
                     startFrom={val.start}
                     endAt={val.end}

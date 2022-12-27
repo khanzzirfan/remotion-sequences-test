@@ -6,6 +6,9 @@ import { VideoCompositionSeriesSequencesCallbackRef } from "./VideoSeriesSequenc
 import { VideoCompositionWithKonvaAnim } from "./VideoCompositionWithKonvaAnim";
 import { VideoCompositionThreeCanvas } from "./VideoCompositionThreeCanvas";
 import { VideoCompositionWithKonvaImage } from "./VidCompositionWithKonvaImage";
+import { VidCompositionWithHtml } from "./VidCompositionWithHtml";
+import { VCThreeCanvas } from "./VCThreeCanvas";
+import { KonvaGsapElements } from "./KonvaStars";
 
 import React, { useState } from "react";
 
@@ -35,6 +38,9 @@ export default function App() {
     "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
   const src1 =
     "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4";
+
+  const src3 =
+    "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4";
 
   React.useEffect(() => {
     // const videoObj = [
@@ -90,19 +96,19 @@ export default function App() {
           src: vids[0],
         },
         {
-          start: 50,
+          start: 51,
           end: 100,
           id: 2,
           src: vids[0],
         },
         {
-          start: 100,
+          start: 101,
           end: 200,
           id: 3,
-          src: vids[0],
+          src: src3, //vids[0],
         },
         {
-          start: 200,
+          start: 201,
           end: 300,
           id: 4,
           src: vids[0],
@@ -149,10 +155,6 @@ export default function App() {
     };
   }, []);
 
-  // const onUpdate = React.useCallback(() => {
-  //   const videoObj = [];
-  //   setData(videoObj);
-  // }, []);
   const size = { width: window.innerWidth, height: window.innerHeight };
   return (
     <div>
@@ -160,7 +162,7 @@ export default function App() {
         <Player
           ref={playerRef}
           style={{ width: "100%", height: "100%" }}
-          component={VideoCompositionThreeCanvas}
+          component={KonvaGsapElements}
           durationInFrames={300}
           compositionWidth={1920}
           compositionHeight={1080}
