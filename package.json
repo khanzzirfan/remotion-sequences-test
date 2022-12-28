@@ -17,7 +17,7 @@
     "framer-motion": "4.1.17",
     "framework-utils": "^1.1.0",
     "gsap": "^3.11.4",
-    "konva": "8.3.2",
+    "konva": "^8.3.14",
     "lodash": "4.17.21",
     "moveable-helper": "^0.4.0",
     "polotno": "^1.0.0-8",
@@ -25,14 +25,15 @@
     "react-dom": "18.1.0",
     "react-fast-compare": "^3.2.0",
     "react-gsap": "^3.2.1",
-    "react-konva": "17.0.2-5",
-    "react-konva-utils": "0.2.0",
+    "react-konva": "^18.2.3",
+    "react-konva-utils": "^0.3.1",
     "react-moveable": "^0.32.7",
     "react-scripts": "4.0.0",
     "react-svg": "^15.0.1",
     "remotion": "3.0.4",
     "scenejs": "^1.6.0",
-    "three": "0.134.0"
+    "three": "0.134.0",
+    "use-image": "^1.1.0"
   },
   "devDependencies": {
     "@babel/runtime": "7.13.8",
