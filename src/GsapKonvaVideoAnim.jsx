@@ -1,14 +1,36 @@
-import React, { Component } from "react";
+import React, { useImperativeHandle } from "react";
 import { Image } from "react-konva";
 import Konva from "konva";
 
-const KonvaVideoAnim = ({ src, play }) => {
+const GsapKonvaVideoAnim = React.forwardRef(({ src, play }, ref) => {
   const imageRef = React.useRef(null);
   const [size, setSize] = React.useState({ width: 50, height: 50 });
-  //   const [playAnim, setPlayAnim] = React.useState(false);
-
   const anim = React.useRef(null);
   const videoElementRef = React.useRef(null);
+
+  //   const [playAnim, setPlayAnim] = React.useState(false);
+
+  useImperativeHandle(
+    ref,
+    () => {
+      // return our API
+      return {
+        start() {
+          if (videoElementRef) {
+            videoElement.play();
+            anim.current.start();
+          }
+        },
+        pause() {
+          if (videoElementRef) {
+            videoElement.pause();
+            anim.current.stop();
+          }
+        },
+      };
+    },
+    [],
+  );
 
   // we need to use "useMemo" here, so we don't create new video elment on any render
   const videoElement = React.useMemo(() => {
@@ -68,6 +90,6 @@ const KonvaVideoAnim = ({ src, play }) => {
       draggable
     />
   );
-};
+});
 
-export default KonvaVideoAnim;
+export default GsapKonvaVideoAnim;

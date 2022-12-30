@@ -6,21 +6,23 @@ import {
   useCurrentFrame,
 } from "remotion";
 import { Stage, Layer, Group, Rect, Image, Star, Circle } from "react-konva";
-import { isEmpty } from "lodash";
 import { Controls, PlayState, Timeline, Tween } from "react-gsap";
 import gsap from "gsap";
+import { Power4 } from "gsap";
 import KonvaImage from "./components/KonvaImage";
+import GsapKonvaVideoAnim from "./GsapKonvaVideoAnim";
+import { PlayerContext } from "./context/PlayerContext";
 
 export const KonvaGsapElements = ({ data, play }) => {
-  console.log("data play", data, play);
   const imageRef = React.useRef(null);
   const canvasRef = React.useRef(null);
   const blueStarRef = React.useRef(null);
   const greenStarRef = React.useRef(null);
+  const videoRef = React.useRef(null);
   const iconsRef = React.useRef([]);
   const el = React.useRef();
   const { width, height } = useVideoConfig();
-  console.log("currentFrame", useCurrentFrame());
+  // const { playerState: play } = React.useContext(PlayerContext);
 
   const iconsArray = [
     {
@@ -60,26 +62,58 @@ export const KonvaGsapElements = ({ data, play }) => {
     },
   ];
 
+  console.log("playstate", play);
   const [playState, setPlayState] = React.useState(PlayState.pause);
   const [totalProgress, setTotalProgress] = React.useState(0);
 
   const timeline = React.useCallback(gsap.timeline({ paused: true }), []);
+  const tl = React.useMemo(() => gsap.timeline({ paused: true }), []);
   const q = React.useMemo(() => gsap.utils.selector(el), []);
 
-  console.log("canvasRef", canvasRef);
-  console.log("imageRef", imageRef);
-  console.log("icons ref", iconsRef);
+  const handleOnVideoStart = React.useCallback(() => {
+    console.log("videostart");
+    videoRef.current.start();
+  }, []);
+
+  const handleOnComplete = React.useCallback(() => {
+    console.log("handleOnComplete");
+  }, []);
+
+  const handleOnPause = React.useCallback(() => {
+    console.log("handleOnPause");
+  }, []);
+
+  const handleOnStart = React.useCallback(() => {
+    console.log("handleOnStart");
+  }, []);
+
+  const handleOnUpdate = React.useCallback(() => {
+    console.log("handleOnUpdate");
+    console.log("duration", timeline.duration());
+  }, [timeline]);
+
+  const handleOnRestart = React.useCallback(() => {
+    console.log("handleOnRestart");
+  }, []);
+
+  timeline.eventCallback("onComplete", handleOnComplete);
+  timeline.eventCallback("onStart", handleOnStart);
+  timeline.eventCallback("onInterrupt", handleOnPause);
+  timeline.eventCallback("onUpdate", handleOnUpdate);
+  timeline.eventCallback("onRepeat", handleOnRestart);
 
   // Run Tween based on Play  status
   React.useEffect(() => {
     if (play) {
       setPlayState(PlayState.play);
       timeline.play();
+      tl.play();
     } else {
       setPlayState(PlayState.stop);
       timeline.pause();
+      tl.pause();
     }
-  }, [play, timeline]);
+  }, [play, timeline, tl]);
 
   React.useEffect(() => {
     timeline
@@ -89,6 +123,9 @@ export const KonvaGsapElements = ({ data, play }) => {
         duration: 0.25,
         stagger: 0.1,
         ease: "back",
+        onComplete: () => {
+          console.log("bluestar completed");
+        },
       })
       .to(blueStarRef.current, {
         x: 300,
@@ -99,6 +136,10 @@ export const KonvaGsapElements = ({ data, play }) => {
         greenStarRef.current,
         {
           x: -100,
+          fill: "yellow",
+          rotation: 360,
+          scaleX: 1.5,
+          scaleY: 1.5,
         },
         { duration: 2, x: 300 },
         2,
@@ -107,9 +148,27 @@ export const KonvaGsapElements = ({ data, play }) => {
         opacity: 0,
         delay: 3,
       })
-      .to(iconsRef.current, { x: 300, stagger: 0.2, autoAlpha: 0 }, 1);
+      .to(iconsRef.current, { x: 300, stagger: 0.2, autoAlpha: 0 }, 1)
+      .to(videoRef.current, { onStart: handleOnVideoStart }, 1);
+    // .eventCallback("onComplete", handleOnComplete)
+    // .eventCallback("onStart", handleOnStart);
     // .staggerFrom(iconsRef.current, 0.2, { scale: 0, autoAlpha: 0 }, 0.1);
   }, [timeline]);
+
+  // React.useEffect(() => {
+  //   tl.to(greenStarRef, 2, {
+  //     konva: {
+  //       x: 300,
+  //       y: 130,
+  //       innerRadius: 15,
+  //       rotation: 360,
+  //       fill: "rgb(0,0,255)",
+  //       scaleX: 1.5,
+  //       scaleY: 1.5,
+  //     },
+  //     ease: Power4.easeOut,
+  //   });
+  // }, [tl]);
 
   return (
     <Sequence from={0}>
@@ -139,6 +198,11 @@ export const KonvaGsapElements = ({ data, play }) => {
                   height={height}
                   fill="red"
                   shadowBlur={10}
+                />
+                <GsapKonvaVideoAnim
+                  src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"
+                  play={false}
+                  ref={videoRef}
                 />
                 <Image image={canvasRef.current} ref={imageRef} />
               </Group>

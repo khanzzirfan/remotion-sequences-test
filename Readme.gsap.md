@@ -25,6 +25,7 @@ https://github.com/konvajs/greensock-plugin
 
 ```Gsock Video seek player
 https://codepen.io/irfankhanirfankhan/pen/WNKrbJZ?editors=0011
+https://codesandbox.io/s/gsap-scrolling-video-animation-forked-zd5ef?file=/src/App.js
 ```
 
 ```stack blitz

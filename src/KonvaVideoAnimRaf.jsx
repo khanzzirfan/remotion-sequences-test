@@ -9,6 +9,7 @@ const KonvaVideoAnim = ({ src, play }) => {
 
   const anim = React.useRef(null);
   const videoElementRef = React.useRef(null);
+  const rafRef = React.useRef();
 
   // we need to use "useMemo" here, so we don't create new video elment on any render
   const videoElement = React.useMemo(() => {
@@ -51,10 +52,15 @@ const KonvaVideoAnim = ({ src, play }) => {
     return () => anim.current.stop();
   }, [play]);
 
-  //   React.useState(()=> {
-  //       if(playAnim){
-  //       }
-  //   }, [playAnim])
+  const animate = (time) => {
+    // The 'state' will always be the initial value here
+    rafRef.current = requestAnimationFrame(animate);
+  };
+
+  React.useEffect(() => {
+    rafRef.current = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, []); // Make sure the effect runs only once
 
   return (
     <Image
