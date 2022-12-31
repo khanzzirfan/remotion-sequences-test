@@ -13,7 +13,7 @@ import KonvaImage from "./components/KonvaImage";
 import GsapKonvaVideoAnim from "./GsapKonvaVideoAnim";
 import { PlayerContext, PlayState as PS } from "./context/PlayerContext";
 
-export const KonvaGsapElements = ({ data }) => {
+export const GsapTimelineDynamicDemo = ({ data, shapes }) => {
   const imageRef = React.useRef(null);
   const canvasRef = React.useRef(null);
   const blueStarRef = React.useRef(null);
@@ -106,7 +106,7 @@ export const KonvaGsapElements = ({ data }) => {
   React.useEffect(() => {
     if (play === PS.PLAY) {
       setPlayState(PlayState.play);
-      timeline.play();
+      timeline.restart();
       tl.play();
     } else {
       setPlayState(PlayState.stop);
@@ -116,7 +116,7 @@ export const KonvaGsapElements = ({ data }) => {
 
     if (play === PS.STOP) {
       setPlayState(PlayState.stop);
-      timeline.revert();
+      timeline.pause();
     }
   }, [play, timeline, tl]);
 

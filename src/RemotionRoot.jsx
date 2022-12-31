@@ -10,11 +10,15 @@ import { VideoCompositionWithKonvaImage } from "./VidCompositionWithKonvaImage";
 import { VidCompositionWithHtml } from "./VidCompositionWithHtml";
 import { VCThreeCanvas } from "./VCThreeCanvas";
 import { KonvaGsapElements } from "./GsapTimelineDemo";
+import { GsapTimelineDynamicDemo } from "./GsapTimelineDynamicDemo";
+import { PlayerContext, PlayState } from "./context/PlayerContext";
 
 import React, { useState } from "react";
 
 const resolveRedirect = async (video) => {
-  const res = await fetch(video);
+  const res = await fetch(video, {
+    mode: "cors",
+  });
   return res.url;
 };
 
@@ -30,62 +34,29 @@ const preload = async (video) => {
 };
 
 export default function Root() {
-  const [play, setPlay] = useState(false);
   const playerRef = React.useRef(null);
   const [data, setData] = useState([]);
   const [shapes, setShapes] = useState([]);
+  const { playerState, togglePlay } = React.useContext(PlayerContext);
 
-  const src0 =
-    "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
+  const src0 = "http://vjs.zencdn.net/v/oceans.mp4";
   const src1 =
     "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4";
 
+  const src2 =
+    "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4";
   const src3 =
-    "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4";
+    "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4";
+
+  const allVid = [src0, src1, src2, src3];
 
   React.useEffect(() => {
-    // const videoObj = [
-    //   {
-    //     start: 0,
-    //     end: 50,
-    //     id: 1,
-    //     src: src1,
-    //   },
-    //   {
-    //     start: 50,
-    //     end: 100,
-    //     id: 2,
-    //     src: src1,
-    //   },
-    //   {
-    //     start: 100,
-    //     end: 200,
-    //     id: 6,
-    //     src: src1,
-    //   },
-    //   {
-    //     start: 200,
-    //     end: 300,
-    //     id: 50,
-    //     src: src1,
-    //   },
-    // ];
-    // setData(videoObj);
-    // const shapesObj = [
-    //   {
-    //     start: 0,
-    //     end: 100,
-    //     id: 300,
-    //   },
-    //   {
-    //     start: 100,
-    //     end: 300,
-    //     id: 500,
-    //   },
-    // ];
-    // setShapes(shapesObj);
-
-    Promise.all([resolveRedirect(src1)]).then((vids) => {
+    Promise.all([
+      resolveRedirect(allVid[0]),
+      resolveRedirect(allVid[1]),
+      resolveRedirect(allVid[2]),
+      resolveRedirect(allVid[3]),
+    ]).then((vids) => {
       vids.forEach((vid) => preload(vid));
       console.log("vids", vids);
       // setResolvedUrls(vids);
@@ -94,25 +65,33 @@ export default function Root() {
           start: 0,
           end: 50,
           id: 1,
+          vidStartAt: 20,
+          vidEndAt: 75,
           src: vids[0],
         },
         {
           start: 51,
           end: 100,
           id: 2,
-          src: vids[0],
+          vidStartAt: 20,
+          vidEndAt: 75,
+          src: vids[1],
         },
         {
           start: 101,
-          end: 200,
+          end: 300,
           id: 3,
-          src: src3, //vids[0],
+          vidStartAt: 20,
+          vidEndAt: 225,
+          src: vids[2], //vids[0],
         },
         {
-          start: 201,
-          end: 300,
+          start: 301,
+          end: 500,
           id: 4,
-          src: vids[0],
+          vidStartAt: 20,
+          vidEndAt: 225,
+          src: vids[3],
         },
       ];
       setData(videoObj);
@@ -140,17 +119,17 @@ export default function Root() {
 
     const handlePause = () => {
       console.log("paused");
-      setPlay(false);
+      togglePlay(PlayState.Pause);
     };
 
     const handlePlay = () => {
       console.log("play triggered");
-      setPlay(true);
+      togglePlay(PlayState.PLAY);
     };
 
     const handleOnEnd = () => {
       console.log("play end video");
-      setPlay(false);
+      togglePlay(PlayState.STOP);
     };
 
     current.addEventListener("pause", handlePause);
@@ -167,16 +146,22 @@ export default function Root() {
   return (
     <div>
       <div style={{ width: "100vw", height: "100vh", position: "relative" }}>
+        
         <Player
           ref={playerRef}
           style={{ width: "100%", height: "100%" }}
-          component={KonvaGsapElements}
-          durationInFrames={300}
+          component={VideoCompositionWithKonvaAnim}
+          durationInFrames={500}
           compositionWidth={1920}
           compositionHeight={1080}
           fps={20}
           controls
-          inputProps={{ play, size, data, shapes }}
+          inputProps={{
+            play: playerState === PlayState.PLAY,
+            size,
+            data,
+            shapes,
+          }}
         />
       </div>
     </div>

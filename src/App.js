@@ -1,7 +1,14 @@
 import RemotionRoot from "./RemotionRoot";
-
-import React, { useState } from "react";
+import { PlayerContextProvider } from "./context/PlayerContext";
+import { CanvasContextProvider } from "./context/CanvasContext";
+import React from "react";
 
 export default function App() {
-  return <RemotionRoot />;
+  return (
+    <CanvasContextProvider>
+      <PlayerContextProvider>
+        <RemotionRoot />
+      </PlayerContextProvider>
+    </CanvasContextProvider>
+  );
 }
