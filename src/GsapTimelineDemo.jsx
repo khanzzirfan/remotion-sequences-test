@@ -65,7 +65,6 @@ export const KonvaGsapElements = ({ data }) => {
   console.log("playstate", play);
   const [playState, setPlayState] = React.useState(PlayState.pause);
   const [totalProgress, setTotalProgress] = React.useState(0);
-
   const timeline = React.useCallback(gsap.timeline({ paused: true }), []);
   const tl = React.useMemo(() => gsap.timeline({ paused: true }), []);
   const q = React.useMemo(() => gsap.utils.selector(el), []);
