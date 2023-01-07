@@ -6,32 +6,6 @@ const GsapKonvaVideoAnimTest = React.forwardRef(({ src, play }, ref) => {
   const imageRef = React.useRef(null);
   const [size, setSize] = React.useState({ width: 50, height: 50 });
   const anim = React.useRef(null);
-  const videoElementRef = React.useRef(null);
-
-  //   const [playAnim, setPlayAnim] = React.useState(false);
-  useImperativeHandle(
-    ref,
-    () => {
-      // return our API
-      return {
-        start() {
-          console.log("onStart the video now");
-          if (videoElementRef) {
-            videoElement.play();
-            anim.current.start();
-          }
-        },
-        pause() {
-          console.log("pause the video now");
-          if (videoElementRef) {
-            videoElement.pause();
-            anim.current.stop();
-          }
-        },
-      };
-    },
-    [],
-  );
 
   // we need to use "useMemo" here, so we don't create new video elment on any render
   const videoElement = React.useMemo(() => {
@@ -40,6 +14,33 @@ const GsapKonvaVideoAnimTest = React.forwardRef(({ src, play }, ref) => {
     element.crossOrigin = "anonymous";
     return element;
   }, [src]);
+
+  //   const [playAnim, setPlayAnim] = React.useState(false);
+  useImperativeHandle(
+    ref,
+    () => {
+      // return our API
+      return {
+        start(startAt) {
+          if (videoElement) {
+            console.log("onStart the video now", startAt);
+            videoElement.currentTime = startAt;
+            videoElement.play();
+            anim.current.start();
+            updateAnim();
+          }
+        },
+        pause() {
+          if (videoElement) {
+            console.log("pause the video now");
+            videoElement.pause();
+            anim.current.stop();
+          }
+        },
+      };
+    },
+    [],
+  );
 
   // when video is loaded, we should read it size
   React.useEffect(() => {
@@ -60,6 +61,14 @@ const GsapKonvaVideoAnimTest = React.forwardRef(({ src, play }, ref) => {
     const layer = imageRef.current.getLayer();
     anim.current = new Konva.Animation(() => {}, layer);
   }, [videoElement]);
+
+  const updateAnim = () => {
+    const layer = imageRef.current.getLayer();
+    if (layer) {
+      if (layer) layer.batchDraw();
+      anim.current = new Konva.Animation(() => {}, layer);
+    }
+  };
 
   React.useEffect(() => {
     if (play) {

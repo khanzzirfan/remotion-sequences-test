@@ -8,6 +8,14 @@ const GsapKonvaVideoAnim = React.forwardRef(({ src, play }, ref) => {
   const anim = React.useRef(null);
   const videoElementRef = React.useRef(null);
 
+  // we need to use "useMemo" here, so we don't create new video elment on any render
+  const videoElement = React.useMemo(() => {
+    const element = document.createElement("video");
+    element.src = src;
+    element.crossOrigin = "anonymous";
+    return element;
+  }, [src]);
+
   //   const [playAnim, setPlayAnim] = React.useState(false);
 
   useImperativeHandle(
@@ -16,13 +24,13 @@ const GsapKonvaVideoAnim = React.forwardRef(({ src, play }, ref) => {
       // return our API
       return {
         start() {
-          if (videoElementRef) {
+          if (videoElement) {
             videoElement.play();
             anim.current.start();
           }
         },
         pause() {
-          if (videoElementRef) {
+          if (videoElement) {
             videoElement.pause();
             anim.current.stop();
           }
@@ -31,14 +39,6 @@ const GsapKonvaVideoAnim = React.forwardRef(({ src, play }, ref) => {
     },
     [],
   );
-
-  // we need to use "useMemo" here, so we don't create new video elment on any render
-  const videoElement = React.useMemo(() => {
-    const element = document.createElement("video");
-    element.src = src;
-    element.crossOrigin = "anonymous";
-    return element;
-  }, [src]);
 
   // when video is loaded, we should read it size
   React.useEffect(() => {

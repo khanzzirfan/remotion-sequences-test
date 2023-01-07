@@ -16,6 +16,7 @@ const GsapContext = React.createContext(false);
 const GsapContextProvider = ({ children }) => {
   const tl = useRef();
   const gsapCtx = useRef();
+  const playerTimeRef = useRef(0.001);
 
   const timeline = React.useCallback(
     gsap.timeline({
@@ -26,17 +27,20 @@ const GsapContextProvider = ({ children }) => {
   );
 
   const [play, setPlay] = useState(false);
-  const [time, setTime] = useState(0.01);
 
   const parentElementRef = useRef();
   // передаем предка анимируемых элементов
   const q = gsap.utils.selector(parentElementRef);
 
   useEffect(() => {
-    timeline.eventCallback("onUpdate", function () {
-      console.log(timeline.progress());
-      onUpdate();
-    });
+    timeline
+      .eventCallback("onUpdate", function () {
+        console.log(timeline.progress());
+        onUpdate();
+      })
+      .eventCallback("onComplete", function () {
+        onComplete();
+      });
   }, []);
 
   useEffect(() => {
@@ -56,10 +60,23 @@ const GsapContextProvider = ({ children }) => {
     }
   };
 
-  const addVideoToTimeline = (selector, data, startAt = 0) => {
+  const addVideoToTimeline = (
+    selector,
+    groupRef,
+    data,
+    startAt = 0,
+    endAt = 1,
+  ) => {
     console.log("allParams", data);
     if (selector) {
-      timeline.from(selector, { ...data }, startAt);
+      // if (startAt >= 0) {
+      //   timeline.to(groupRef, { opacity: 1, duration: 0.5 }, startAt);
+      // }
+      timeline
+        .to(groupRef, { opacity: 1, duration: 0.2 }, startAt)
+        .from(selector, { ...data }, startAt)
+        .to(groupRef, { opacity: 0, duration: 0.2 }, endAt);
+      //timeline.to(groupRef, { opacity: 0, duration: 0.5 }, duration + 0.01);
     }
   };
 
@@ -117,13 +134,21 @@ const GsapContextProvider = ({ children }) => {
     console.log("update event callback");
     var now = timeline.time();
     var elapsedTime;
-    if (time) {
-      elapsedTime = now - time;
+    if (playerTimeRef.current) {
+      elapsedTime = now - playerTimeRef.current;
     }
     console.log(elapsedTime);
     //time = now;
-    setTime(now);
+    playerTimeRef.current = now;
   }, [timeline]);
+
+  const onComplete = () => {
+    console.log("global completed animation");
+    // timeline.revert();
+    timeline.seek(0.01);
+    timeline.pause();
+    onUpdate();
+  };
 
   return (
     <GsapContext.Provider
@@ -134,7 +159,6 @@ const GsapContextProvider = ({ children }) => {
         play,
         parentElementRef,
         addTotalDuration,
-        time,
         handleRestart,
         handleReset,
         handleSeek,
@@ -142,6 +166,7 @@ const GsapContextProvider = ({ children }) => {
         addVideoToTimeline,
         handlePlay,
         handlePause,
+        playerTimeRef,
       }}
     >
       {children}

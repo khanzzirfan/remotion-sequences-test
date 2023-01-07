@@ -1,12 +1,10 @@
-import { PlayerContext, PlayState } from "../context/PlayerContext";
 import React, { useState } from "react";
 import { Flex, Icon, Text, Box, Button } from "@chakra-ui/react";
-
-import { GsapTimelineContext } from "../context/GsapTimelineContext";
 import { GsapContext } from "../context/GsapReactContext";
 import { Stage, Layer, Group, Rect, Image, Star, Circle } from "react-konva";
 import { isEmpty } from "lodash";
 import GsapKonvaVideoAnimTest from "./GsapKonvaVideoAnimTest";
+import { CurrentTime } from "./CurrentTime";
 
 const resolveRedirect = async (video) => {
   const res = await fetch(video, {
@@ -27,15 +25,12 @@ const preload = async (video) => {
 };
 
 export default function Root() {
-  const playerRef = React.useRef(null);
   const [data, setData] = useState([]);
   const [shapes, setShapes] = useState([]);
   const [isReady, setIsReady] = useState(false);
-  const { playerState, togglePlay } = React.useContext(PlayerContext);
-  const { setPlay, setTotalDuration, handleReset, getCurrentTime } =
-    React.useContext(GsapTimelineContext);
 
   const videoRefs = React.useRef([]);
+  const videoGroupRefs = React.useRef([]);
 
   const {
     addToTimeline,
@@ -50,6 +45,7 @@ export default function Root() {
     handleSeek: ctxSeek,
     handlePlay,
     handlePause,
+    playerTimeRef,
   } = React.useContext(GsapContext);
 
   const src0 = "http://vjs.zencdn.net/v/oceans.mp4";
@@ -60,14 +56,14 @@ export default function Root() {
     "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4";
   const src3 =
     "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4";
-
+  // src1, src2, src3
   const allVid = [src0, src1, src2, src3];
 
-  const onStartVideo = (refId) => {
+  const onStartVideo = (refId, startAt) => {
     console.log("onStartVideo id", refId);
     if (refId && !isEmpty(videoRefs.current[refId])) {
       console.log(videoRefs.current[refId]);
-      videoRefs.current[refId].start();
+      videoRefs.current[refId].start(startAt);
     }
   };
 
@@ -75,6 +71,10 @@ export default function Root() {
     console.log("onCompleteVideo animation id", refId);
     if (refId && !isEmpty(videoRefs.current[refId])) {
       videoRefs.current[refId].pause();
+      // ctxTimeLine.to(videoGroupRefs.current[refId], {
+      //   opacity: 0,
+      //   duration: 0.1,
+      // });
     }
   };
 
@@ -91,40 +91,47 @@ export default function Root() {
       const videoObj = [
         {
           start: 0,
-          x: 20,
+          x: 0,
           end: 5,
+          width: 100,
           id: "eWRhpRV",
-          vidStartAt: 20,
-          vidEndAt: 75,
+          vidStartAt: 1,
+          vidEndAt: 6,
           src: vids[0],
         },
         {
           start: 5,
           end: 10,
-          x: 20,
+          x: 50,
+          y: 50,
+          width: 100,
           id: "23TplPdS",
-          vidStartAt: 20,
-          vidEndAt: 75,
+          vidStartAt: 0,
+          vidEndAt: 5,
           src: vids[1],
         },
-        {
-          start: 10,
-          end: 15,
-          x: 20,
-          id: "46Juzcyx",
-          vidStartAt: 20,
-          vidEndAt: 225,
-          src: vids[2], //vids[0],
-        },
-        {
-          start: 15,
-          end: 20,
-          x: 20,
-          id: "2WEKaVNO",
-          vidStartAt: 20,
-          vidEndAt: 225,
-          src: vids[3],
-        },
+        // {
+        //   start: 10,
+        //   end: 15,
+        //   width: 100,
+        //   x: 70,
+        //   y: 200,
+        //   id: "46Juzcyx",
+        //   vidStartAt: 0,
+        //   vidEndAt: 5,
+        //   src: vids[2], //vids[0],
+        // },
+        // {
+        //   start: 15,
+        //   end: 20,
+        //   x: 100,
+        //   y: 300,
+        //   width: 100,
+        //   id: "2WEKaVNO",
+        //   vidStartAt: 0,
+        //   vidEndAt: 5,
+        //   src: vids[3],
+        // },
       ];
       setData(videoObj);
       const shapesObj = [
@@ -179,28 +186,30 @@ export default function Root() {
       data.forEach((ev) => {
         addVideoToTimeline(
           videoRefs.current[ev.id],
+          videoGroupRefs.current[ev.id],
           {
             duration: ev.end - ev.start,
             onStart: onStartVideo,
             onComplete: onCompleteVideo,
-            onStartParams: [ev.id],
+            onStartParams: [ev.id, ev.vidStartAt],
             onCompleteParams: [ev.id],
           },
           ev.start,
+          ev.end,
         );
       });
     }
   }, [data, isReady]);
 
-  const width = 600;
-  const height = 600;
+  const width = 1200;
+  const height = 800;
 
   //   console.log("contextPlaying", ctxPlay);
   console.log("contexRef", videoRefs);
   return (
     <Flex flexDir={"column"}>
       <Box>
-        <Text>CurrentGsapTime: {getCurrentTime()}</Text>
+        <CurrentTime />
         <Box>
           <Button onClick={ctxRestart}>Play</Button>
           <Button onClick={handlePause}>Pause</Button>
@@ -210,23 +219,28 @@ export default function Root() {
       </Box>
       <Flex flexDir={"row"}>
         <Flex flexDir={"column"}>
-          <Flex style={{ width: "600px", height: "600px" }}>
-            <Stage width={600} height={600} ref={parentElementRef}>
+          <Flex style={{ width: "1200px", height: "800px" }}>
+            <Stage width={width} height={height} ref={parentElementRef}>
               <Layer>
                 <Group draggable x={1} y={1}>
-                  <Rect
-                    width={width}
-                    height={height}
-                    fill="yellow"
-                    shadowBlur={10}
-                  />
                   {data &&
                     data.map((eachVid, idx) => (
-                      <GsapKonvaVideoAnimTest
-                        src={eachVid.src}
+                      <Group
                         key={eachVid.id}
-                        ref={(vref) => (videoRefs.current[eachVid.id] = vref)}
-                      />
+                        ref={(vref) =>
+                          (videoGroupRefs.current[eachVid.id] = vref)
+                        }
+                        x={eachVid.x}
+                        y={eachVid.y}
+                        width={eachVid.width}
+                        opacity={idx === 0 ? 1 : 0}
+                      >
+                        <GsapKonvaVideoAnimTest
+                          src={eachVid.src}
+                          key={eachVid.id}
+                          ref={(vref) => (videoRefs.current[eachVid.id] = vref)}
+                        />
+                      </Group>
                     ))}
                   {/* <KonvaVideoAnim src={val.src} play={play} /> */}
                 </Group>
