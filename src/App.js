@@ -1,5 +1,6 @@
 import RemotionRoot from "./RemotionRoot";
 import GsapRoot from "./gsap-test/GsapRoot";
+import RemotionThreeRoot from "./remotion-test/Root";
 import GsapVideoPlayer from "./gsap-test/GsapVideoTest";
 import { PlayerContextProvider } from "./context/PlayerContext";
 import { CanvasContextProvider } from "./context/CanvasContext";
@@ -16,6 +17,7 @@ export default function App() {
             {/* <RemotionRoot /> */}
             {/* <GsapRoot /> */}
             <GsapVideoPlayer />
+            {/* <RemotionThreeRoot /> */}
           </PlayerContextProvider>
         </GsapContextProvider>
       </GsapTimelineContextProvider>

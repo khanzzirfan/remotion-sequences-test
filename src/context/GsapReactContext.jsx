@@ -14,6 +14,9 @@ const GsapContext = React.createContext(false);
 
 // Provider
 const GsapContextProvider = ({ children }) => {
+  const [play, setPlay] = useState(false);
+  const [frameNumber, setFrameNumber] = useState(0);
+
   const tl = useRef();
   const gsapCtx = useRef();
   const playerTimeRef = useRef(0.001);
@@ -26,7 +29,10 @@ const GsapContextProvider = ({ children }) => {
     [],
   );
 
-  const [play, setPlay] = useState(false);
+  // gsap.ticker.add((time, deltaTime, frame) => {
+  //   console.log("timeframe", time, deltaTime, frame);
+  //   setFrameNumber(frame);
+  // });
 
   const parentElementRef = useRef();
   // передаем предка анимируемых элементов
@@ -137,7 +143,7 @@ const GsapContextProvider = ({ children }) => {
     if (playerTimeRef.current) {
       elapsedTime = now - playerTimeRef.current;
     }
-    console.log(elapsedTime);
+    console.log(`elapseTime :${elapsedTime} and frame: ${frameNumber}`);
     //time = now;
     playerTimeRef.current = now;
   }, [timeline]);
@@ -167,6 +173,7 @@ const GsapContextProvider = ({ children }) => {
         handlePlay,
         handlePause,
         playerTimeRef,
+        frameNumber,
       }}
     >
       {children}

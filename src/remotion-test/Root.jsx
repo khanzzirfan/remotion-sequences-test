@@ -1,12 +1,8 @@
 import { Player } from "@remotion/player";
-// import { GsapRemotionSyncTestWithKonva } from "./GsapRemotionSyncTest";
-import { GsapRemotionSyncTestWithKonva } from "./GsapRemotionSyncTestKonva";
 import { PlayerContext, PlayState } from "../context/PlayerContext";
 import React, { useState } from "react";
 import { Flex, Icon, Text, Box, Button } from "@chakra-ui/react";
-import { GsapTimelineContext } from "../context/GsapTimelineContext";
-import { Boxes } from "./Boxes";
-import GsapVideoTest from "./GsapVideoTest";
+import { VideoCompositionThree } from "./VideoCompositionThree";
 
 const resolveRedirect = async (video) => {
   const res = await fetch(video, {
@@ -29,10 +25,9 @@ const preload = async (video) => {
 export default function Root() {
   const playerRef = React.useRef(null);
   const [data, setData] = useState([]);
+  const [gifData, setGifData] = useState([]);
   const [shapes, setShapes] = useState([]);
   const { playerState, togglePlay } = React.useContext(PlayerContext);
-  const { setPlay, setTotalDuration, handleReset, getCurrentTime } =
-    React.useContext(GsapTimelineContext);
 
   const src0 = "http://vjs.zencdn.net/v/oceans.mp4";
   const src1 =
@@ -44,6 +39,12 @@ export default function Root() {
     "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4";
 
   const allVid = [src0, src1, src2, src3];
+  const allGifs = [
+    "https://media.giphy.com/media/3orieS4jfHJaKwkeli/giphy.gif",
+    "https://media.giphy.com/media/3o72F7YT6s0EMFI0Za/giphy.gif",
+    "https://media.giphy.com/media/YrTJKOe0FhQJAUXTyp/giphy-downsized-large.gif",
+    "https://media.giphy.com/media/kHsNGykRSXwhPw4Q7M/giphy.gif",
+  ];
 
   React.useEffect(() => {
     Promise.all([
@@ -106,9 +107,45 @@ export default function Root() {
     });
   }, []);
 
+  React.useEffect(() => {
+    Promise.all([
+      resolveRedirect(allGifs[0]),
+      resolveRedirect(allGifs[1]),
+      resolveRedirect(allGifs[2]),
+      resolveRedirect(allGifs[3]),
+    ]).then((vids) => {
+      const gifObj = [
+        {
+          start: 0,
+          end: 50,
+          id: 1,
+          src: vids[0],
+        },
+        {
+          start: 51,
+          end: 100,
+          id: 2,
+          src: vids[1],
+        },
+        {
+          start: 101,
+          end: 300,
+          id: 3,
+          src: vids[2], //vids[0],
+        },
+        {
+          start: 301,
+          end: 500,
+          id: 4,
+          src: vids[3],
+        },
+      ];
+      setGifData(gifObj);
+    });
+  }, []);
+
   const handleOnPlay = () => {
     togglePlay(PlayState.PLAY);
-    setPlay(true);
   };
   React.useEffect(() => {
     const { current } = playerRef;
@@ -126,20 +163,16 @@ export default function Root() {
     const handlePause = () => {
       console.log("paused");
       togglePlay(PlayState.Pause);
-      setPlay(false);
     };
 
     const handlePlay = () => {
       console.log("play triggered");
       togglePlay(PlayState.PLAY);
-      setPlay(true);
     };
 
     const handleOnEnd = () => {
       console.log("play end video");
       togglePlay(PlayState.STOP);
-      setPlay(false);
-      handleReset();
     };
 
     current.addEventListener("pause", handlePause);
@@ -160,11 +193,11 @@ export default function Root() {
           <Box>
             <Text>Remotion: 00</Text>
           </Box>
-          <Flex style={{ width: "900px", height: "900px" }}>
+          <Flex style={{ width: "1200px", height: "900px" }}>
             <Player
               ref={playerRef}
               style={{ width: "100%", height: "100%" }}
-              component={GsapRemotionSyncTestWithKonva}
+              component={VideoCompositionThree}
               durationInFrames={500}
               compositionWidth={1920}
               compositionHeight={1080}
@@ -174,6 +207,7 @@ export default function Root() {
                 play: playerState === PlayState.PLAY,
                 size,
                 data,
+                gifData,
                 shapes,
               }}
             />

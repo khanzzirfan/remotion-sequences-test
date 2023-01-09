@@ -48,3 +48,11 @@ http://docs.evostream.com/sample_content/assets/sintel1m720p.mp4
 http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4
 
 ```
+
+```animation
+https://codepen.io/denizhacisalihoglu/pen/VwvqjxV
+```
+
+```konva image and canvas manipulation
+https://konvajs.org/docs/sandbox/Image_Labeling.html
+```

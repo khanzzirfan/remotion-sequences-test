@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { Flex, Icon, Text, Box, Button } from "@chakra-ui/react";
 import { GsapContext } from "../context/GsapReactContext";
+import { PlayerContext, PlayState } from "../context/PlayerContext";
 import { Stage, Layer, Group, Rect, Image, Star, Circle } from "react-konva";
 import { isEmpty } from "lodash";
 import GsapKonvaVideoAnimTest from "./GsapKonvaVideoAnimTest";
 import { CurrentTime } from "./CurrentTime";
+import { GsapKonvaGifTest } from "./GsapKonvaGifTest";
 
 const resolveRedirect = async (video) => {
   const res = await fetch(video, {
@@ -20,17 +22,19 @@ const preload = async (video) => {
   link.rel = "preload";
   link.href = url;
   link.as = "video";
-
   document.head.appendChild(link);
 };
 
 export default function Root() {
   const [data, setData] = useState([]);
   const [shapes, setShapes] = useState([]);
+  const [gifData, setGif] = useState([]);
   const [isReady, setIsReady] = useState(false);
 
   const videoRefs = React.useRef([]);
   const videoGroupRefs = React.useRef([]);
+
+  const { playerState } = React.useContext(PlayerContext);
 
   const {
     addToTimeline,
@@ -56,6 +60,9 @@ export default function Root() {
     "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4";
   const src3 =
     "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4";
+
+  const gifMedia = "https://media.giphy.com/media/5VKbvrjxpVJCM/giphy.gif";
+
   // src1, src2, src3
   const allVid = [src0, src1, src2, src3];
 
@@ -77,6 +84,14 @@ export default function Root() {
       // });
     }
   };
+
+  React.useEffect(() => {
+    if (playerState === PlayState.PLAY) {
+      handlePlay();
+    } else {
+      handlePause();
+    }
+  }, [playerState, handlePlay, handlePause]);
 
   React.useEffect(() => {
     Promise.all([
@@ -110,28 +125,28 @@ export default function Root() {
           vidEndAt: 5,
           src: vids[1],
         },
-        // {
-        //   start: 10,
-        //   end: 15,
-        //   width: 100,
-        //   x: 70,
-        //   y: 200,
-        //   id: "46Juzcyx",
-        //   vidStartAt: 0,
-        //   vidEndAt: 5,
-        //   src: vids[2], //vids[0],
-        // },
-        // {
-        //   start: 15,
-        //   end: 20,
-        //   x: 100,
-        //   y: 300,
-        //   width: 100,
-        //   id: "2WEKaVNO",
-        //   vidStartAt: 0,
-        //   vidEndAt: 5,
-        //   src: vids[3],
-        // },
+        {
+          start: 10,
+          end: 15,
+          width: 100,
+          x: 70,
+          y: 200,
+          id: "46Juzcyx",
+          vidStartAt: 0,
+          vidEndAt: 5,
+          src: vids[2], //vids[0],
+        },
+        {
+          start: 15,
+          end: 20,
+          x: 100,
+          y: 300,
+          width: 100,
+          id: "2WEKaVNO",
+          vidStartAt: 0,
+          vidEndAt: 5,
+          src: vids[3],
+        },
       ];
       setData(videoObj);
       const shapesObj = [
@@ -176,6 +191,7 @@ export default function Root() {
           6,
         );
       });
+      setGif([gifMedia]);
       setIsReady(true);
       // ctxSetTotalDuration(50);
     });
@@ -205,7 +221,7 @@ export default function Root() {
   const height = 800;
 
   //   console.log("contextPlaying", ctxPlay);
-  console.log("contexRef", videoRefs);
+  // console.log("contexRef", videoRefs);
   return (
     <Flex flexDir={"column"}>
       <Box>
@@ -267,6 +283,15 @@ export default function Root() {
                     fill="#89b717"
                     opacity={0.8}
                   />
+                </Group>
+                <Group id="giftest">
+                  <Rect
+                    width={width}
+                    height={height}
+                    fill="green"
+                    shadowBlur={10}
+                  />
+                  <GsapKonvaGifTest src="https://media.giphy.com/media/5VKbvrjxpVJCM/giphy.gif" />
                 </Group>
               </Layer>
             </Stage>
