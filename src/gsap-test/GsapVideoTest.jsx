@@ -34,6 +34,10 @@ export default function Root() {
   const videoRefs = React.useRef([]);
   const videoGroupRefs = React.useRef([]);
 
+  // Gif Refs
+  const gifRefs = React.useRef([]);
+  const gifGroupRefs = React.useRef([]);
+
   const { playerState } = React.useContext(PlayerContext);
 
   const {
@@ -61,8 +65,12 @@ export default function Root() {
   const src3 =
     "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4";
 
-  const gifMedia = "https://media.giphy.com/media/5VKbvrjxpVJCM/giphy.gif";
-
+  const allGifs = [
+    "https://media.giphy.com/media/3orieS4jfHJaKwkeli/giphy.gif",
+    "https://media.giphy.com/media/3o72F7YT6s0EMFI0Za/giphy.gif",
+    "https://media.giphy.com/media/YrTJKOe0FhQJAUXTyp/giphy-downsized-large.gif",
+    "https://media.giphy.com/media/kHsNGykRSXwhPw4Q7M/giphy.gif",
+  ];
   // src1, src2, src3
   const allVid = [src0, src1, src2, src3];
 
@@ -74,14 +82,38 @@ export default function Root() {
     }
   };
 
+  const onStartGif = (refId, startAt) => {
+    console.log("onGifStarting id", refId);
+    if (refId && !isEmpty(gifRefs.current[refId])) {
+      console.log("ref gifref", gifRefs.current[refId]);
+      gifRefs.current[refId].start(startAt);
+    }
+  };
+
   const onCompleteVideo = (refId) => {
     console.log("onCompleteVideo animation id", refId);
     if (refId && !isEmpty(videoRefs.current[refId])) {
       videoRefs.current[refId].pause();
-      // ctxTimeLine.to(videoGroupRefs.current[refId], {
-      //   opacity: 0,
-      //   duration: 0.1,
-      // });
+      videoRefs.current[refId].onComplete();
+    }
+  };
+
+  const onCompleteGif = (refId) => {
+    console.log("onComplete Gif animation id", refId);
+    if (refId && !isEmpty(gifRefs.current[refId])) {
+      gifRefs.current[refId].pause();
+      gifRefs.current[refId].onComplete();
+    }
+  };
+
+  const onInterrupt = (refId) => {
+    console.log("interrupting", refId);
+  };
+
+  const onUpdate = (refId) => {
+    console.log("timeline paused", ctxTimeLine.paused());
+    if (ctxTimeLine.paused()) {
+      console.log("onUpdate", refId);
     }
   };
 
@@ -191,7 +223,58 @@ export default function Root() {
           6,
         );
       });
-      setGif([gifMedia]);
+
+      Promise.all([
+        resolveRedirect(allGifs[0]),
+        resolveRedirect(allGifs[1]),
+        resolveRedirect(allGifs[2]),
+        resolveRedirect(allGifs[3]),
+      ]).then((vids) => {
+        const gifObj = [
+          {
+            start: 0,
+            end: 3,
+            id: "dogPzIz8",
+            src: vids[0],
+            x: 0,
+            y: 0,
+            width: 100,
+            height: 100,
+          },
+          {
+            start: 3,
+            end: 4,
+            id: "nYrnfYEv",
+            src: vids[1],
+            x: 20,
+            y: 20,
+            width: 100,
+            height: 100,
+          },
+          {
+            start: 5,
+            end: 6,
+            id: "a4vhAoFG",
+            src: vids[2], //vids[0],
+            x: 50,
+            y: 50,
+            width: 100,
+            height: 100,
+          },
+          {
+            start: 7,
+            end: 8,
+            id: "hwX6aOr7",
+            src: vids[3],
+            x: 30,
+            y: 30,
+            width: 100,
+            height: 100,
+          },
+        ];
+        setGif(gifObj);
+      });
+
       setIsReady(true);
       // ctxSetTotalDuration(50);
     });
@@ -209,6 +292,9 @@ export default function Root() {
             onComplete: onCompleteVideo,
             onStartParams: [ev.id, ev.vidStartAt],
             onCompleteParams: [ev.id],
+            onInterrupt: onInterrupt,
+            onUpdate: onUpdate,
+            onUpdateParams: [ev.id],
           },
           ev.start,
           ev.end,
@@ -217,11 +303,33 @@ export default function Root() {
     }
   }, [data, isReady]);
 
+  /** Gifs to add to Gsap Animation Context */
+  React.useEffect(() => {
+    if (isReady) {
+      gifData.forEach((ev) => {
+        addVideoToTimeline(
+          gifRefs.current[ev.id],
+          gifGroupRefs.current[ev.id],
+          {
+            duration: ev.end - ev.start,
+            onStart: onStartGif,
+            onComplete: onCompleteGif,
+            onStartParams: [ev.id, ev.start],
+            onCompleteParams: [ev.id],
+          },
+          ev.start,
+          ev.end,
+        );
+      });
+    }
+  }, [gifData, isReady]);
+
   const width = 1200;
   const height = 800;
 
   //   console.log("contextPlaying", ctxPlay);
-  // console.log("contexRef", videoRefs);
+  console.log("contexRef", gifGroupRefs);
+  console.log("gifData", gifData);
   return (
     <Flex flexDir={"column"}>
       <Box>
@@ -285,13 +393,31 @@ export default function Root() {
                   />
                 </Group>
                 <Group id="giftest">
-                  <Rect
-                    width={width}
-                    height={height}
-                    fill="green"
-                    shadowBlur={10}
-                  />
-                  <GsapKonvaGifTest src="https://media.giphy.com/media/5VKbvrjxpVJCM/giphy.gif" />
+                  {gifData &&
+                    gifData.map((each, idx) => (
+                      <Group
+                        key={each.id}
+                        ref={(vref) => (gifGroupRefs.current[each.id] = vref)}
+                        x={each.x}
+                        y={each.y}
+                        width={each.width}
+                        height={each.height}
+                        opacity={idx === 0 ? 1 : 0}
+                      >
+                        <GsapKonvaGifTest
+                          src={each.src}
+                          key={each.id}
+                          ref={(vref) => (gifRefs.current[each.id] = vref)}
+                          width={each.width}
+                          height={each.height}
+                        />
+                        {/* <GsapKonvaVideoAnimTest
+                          src={each.src}
+                          key={each.id}
+                          ref={(vref) => (videoRefs.current[eachVid.id] = vref)}
+                        /> */}
+                      </Group>
+                    ))}
                 </Group>
               </Layer>
             </Stage>

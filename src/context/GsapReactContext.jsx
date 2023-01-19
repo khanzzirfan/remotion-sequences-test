@@ -7,11 +7,17 @@ import React, {
 } from "react";
 import { Controls, PlayState, Timeline, Tween } from "react-gsap";
 import gsap from "gsap";
+import { emitCustomEvent } from "react-custom-events";
 // import { Power4 } from "gsap";
 
 // Context has been created
 const GsapContext = React.createContext(false);
-
+const Events = {
+  STOP: "GSAP_STOP",
+  PAUSE: "GSAP_PAUSE",
+  PLAY: "GSAP_PLAY",
+  RESUME: "GSAP_RESUME",
+};
 // Provider
 const GsapContextProvider = ({ children }) => {
   const [play, setPlay] = useState(false);
@@ -41,7 +47,7 @@ const GsapContextProvider = ({ children }) => {
   useEffect(() => {
     timeline
       .eventCallback("onUpdate", function () {
-        console.log(timeline.progress());
+        // console.log(timeline.progress());
         onUpdate();
       })
       .eventCallback("onComplete", function () {
@@ -73,7 +79,7 @@ const GsapContextProvider = ({ children }) => {
     startAt = 0,
     endAt = 1,
   ) => {
-    console.log("allParams", data);
+    // console.log("allParams", data);
     if (selector) {
       // if (startAt >= 0) {
       //   timeline.to(groupRef, { opacity: 1, duration: 0.5 }, startAt);
@@ -111,13 +117,15 @@ const GsapContextProvider = ({ children }) => {
     timeline.totalDuration(3);
   }, [timeline]);
 
-  const handlePause = useCallback(() => {
+  const handlePause = () => {
     timeline.pause();
-  }, [timeline]);
+    emitCustomEvent(Events.PAUSE);
+  };
 
-  const handlePlay = useCallback(() => {
+  const handlePlay = () => {
     timeline.resume();
-  }, [timeline]);
+    emitCustomEvent(Events.RESUME);
+  };
 
   //   useLayoutEffect(() => {
   //     gsapCtx.current = gsap.context(() => {
@@ -137,13 +145,13 @@ const GsapContextProvider = ({ children }) => {
   //   }, []);
 
   const onUpdate = useCallback(() => {
-    console.log("update event callback");
+    /// console.log("update event callback");
     var now = timeline.time();
     var elapsedTime;
     if (playerTimeRef.current) {
       elapsedTime = now - playerTimeRef.current;
     }
-    console.log(`elapseTime :${elapsedTime} and frame: ${frameNumber}`);
+    //  console.log(`elapseTime :${elapsedTime} and frame: ${frameNumber}`);
     //time = now;
     playerTimeRef.current = now;
   }, [timeline]);
@@ -181,4 +189,4 @@ const GsapContextProvider = ({ children }) => {
   );
 };
 
-export { GsapContext, GsapContextProvider, PlayState };
+export { GsapContext, GsapContextProvider, PlayState, Events };

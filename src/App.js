@@ -6,6 +6,7 @@ import { PlayerContextProvider } from "./context/PlayerContext";
 import { CanvasContextProvider } from "./context/CanvasContext";
 import { GsapTimelineContextProvider } from "./context/GsapTimelineContext";
 import { GsapContextProvider } from "./context/GsapReactContext";
+import ReactNativeGsapRoot from "./react-gsap-test/ReactGsapRoot";
 import React from "react";
 
 export default function App() {
@@ -18,6 +19,7 @@ export default function App() {
             {/* <GsapRoot /> */}
             <GsapVideoPlayer />
             {/* <RemotionThreeRoot /> */}
+            {/* <ReactNativeGsapRoot /> */}
           </PlayerContextProvider>
         </GsapContextProvider>
       </GsapTimelineContextProvider>

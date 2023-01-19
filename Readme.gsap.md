@@ -51,8 +51,19 @@ http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrid
 
 ```animation
 https://codepen.io/denizhacisalihoglu/pen/VwvqjxV
+https://codepen.io/Polenji86/pen/KNabaJ?editors=0010
 ```
 
 ```konva image and canvas manipulation
 https://konvajs.org/docs/sandbox/Image_Labeling.html
+```
+
+```custom events
+https://blog.logrocket.com/using-custom-events-react/#building-custom-event-react
+https://www.npmjs.com/package/react-custom-events
+```
+
+```shapes
+https://codepen.io/daybrush/pen/ReYxLy?editors=1010
+
 ```

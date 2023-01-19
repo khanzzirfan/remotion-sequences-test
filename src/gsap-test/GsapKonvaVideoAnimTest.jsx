@@ -1,10 +1,14 @@
-import React, { useImperativeHandle } from "react";
+import React, { useImperativeHandle, useState } from "react";
 import { Image } from "react-konva";
 import Konva from "konva";
+import { useCustomEventListener } from "react-custom-events";
+import { Events } from "../context/GsapReactContext";
 
-const GsapKonvaVideoAnimTest = React.forwardRef(({ src, play }, ref) => {
+const GsapKonvaVideoAnimTest = React.forwardRef(({ src }, ref) => {
   const imageRef = React.useRef(null);
+  const [play, setPlay] = React.useState(false);
   const [size, setSize] = React.useState({ width: 50, height: 50 });
+  const [current, setCurrent] = useState(false);
   const anim = React.useRef(null);
 
   // we need to use "useMemo" here, so we don't create new video elment on any render
@@ -14,6 +18,33 @@ const GsapKonvaVideoAnimTest = React.forwardRef(({ src, play }, ref) => {
     element.crossOrigin = "anonymous";
     return element;
   }, [src]);
+
+  const handlePause = () => {
+    if (videoElement) {
+      console.log("pause the video now");
+      videoElement.pause();
+      anim.current.stop();
+      setPlay(() => false);
+    }
+  };
+
+  const handleResume = () => {
+    if (videoElement && current) {
+      console.log("pause the video now");
+      videoElement.play();
+      anim.current.start();
+      updateAnim();
+      setPlay(() => true);
+    }
+  };
+
+  useCustomEventListener(Events.PAUSE, (data) => {
+    handlePause(data);
+  });
+
+  useCustomEventListener(Events.RESUME, (data) => {
+    handleResume(data);
+  });
 
   //   const [playAnim, setPlayAnim] = React.useState(false);
   useImperativeHandle(
@@ -28,14 +59,15 @@ const GsapKonvaVideoAnimTest = React.forwardRef(({ src, play }, ref) => {
             videoElement.play();
             anim.current.start();
             updateAnim();
+            setPlay(() => true);
+            setCurrent(() => true);
           }
         },
         pause() {
-          if (videoElement) {
-            console.log("pause the video now");
-            videoElement.pause();
-            anim.current.stop();
-          }
+          handlePause();
+        },
+        onComplete() {
+          setCurrent(() => false);
         },
       };
     },
