@@ -7,6 +7,7 @@ import { isEmpty } from "lodash";
 import GsapKonvaVideoAnimTest from "./GsapKonvaVideoAnimTest";
 import { CurrentTime } from "./CurrentTime";
 import { GsapKonvaGifTest } from "./GsapKonvaGifTest";
+import { VideoSliderSeekBar } from "./SeekBar";
 
 const resolveRedirect = async (video) => {
   const res = await fetch(video, {
@@ -72,7 +73,8 @@ export default function Root() {
     "https://media.giphy.com/media/kHsNGykRSXwhPw4Q7M/giphy.gif",
   ];
   // src1, src2, src3
-  const allVid = [src0, src1, src2, src3];
+  //// const allVid = [src0, src1, src2, src3];
+  const allVid = [src0];
 
   const onStartVideo = (refId, startAt) => {
     console.log("onStartVideo id", refId);
@@ -282,6 +284,7 @@ export default function Root() {
 
   React.useEffect(() => {
     if (isReady) {
+      console.log("recreating tween timeline");
       data.forEach((ev) => {
         addVideoToTimeline(
           videoRefs.current[ev.id],
@@ -341,86 +344,101 @@ export default function Root() {
           <Button onClick={ctxSeek}>Seek</Button>
         </Box>
       </Box>
+      <Box px={10}>
+        <VideoSliderSeekBar />
+      </Box>
       <Flex flexDir={"row"}>
-        <Flex flexDir={"column"}>
-          <Flex style={{ width: "1200px", height: "800px" }}>
-            <Stage width={width} height={height} ref={parentElementRef}>
-              <Layer>
-                <Group draggable x={1} y={1}>
-                  {data &&
-                    data.map((eachVid, idx) => (
-                      <Group
-                        key={eachVid.id}
-                        ref={(vref) =>
-                          (videoGroupRefs.current[eachVid.id] = vref)
-                        }
-                        x={eachVid.x}
-                        y={eachVid.y}
-                        width={eachVid.width}
-                        opacity={idx === 0 ? 1 : 0}
-                      >
-                        <GsapKonvaVideoAnimTest
-                          src={eachVid.src}
+        <Flex flex={1}>
+          {/** Htlm video element */}
+          <video controls width="100%">
+            <source src="/video-example.webm" type="video/webm" />
+            <source src="/video-example.mp4" type="video/mp4" />
+            Sorry, your browser doesn't support videos.
+          </video>
+        </Flex>
+        <Flex flexDir={"row"}>
+          <Flex flexDir={"column"}>
+            <Flex style={{ width: "1200px", height: "800px" }}>
+              <Stage width={width} height={height} ref={parentElementRef}>
+                <Layer>
+                  <Group draggable x={1} y={1}>
+                    {data &&
+                      data.map((eachVid, idx) => (
+                        <Group
                           key={eachVid.id}
-                          ref={(vref) => (videoRefs.current[eachVid.id] = vref)}
-                        />
-                      </Group>
-                    ))}
-                  {/* <KonvaVideoAnim src={val.src} play={play} /> */}
-                </Group>
-                <Group id="shapes">
-                  <Circle x={200} y={100} radius={50} fill="green" />
-                  <Star
-                    x={400}
-                    y={400}
-                    numPoints={5}
-                    innerRadius={20}
-                    outerRadius={40}
-                    fill="#89b717"
-                    opacity={0.8}
-                  />
-                </Group>
-                <Group id="shapes2">
-                  <Circle x={400} y={300} radius={50} fill="green" />
-                  <Star
-                    x={600}
-                    y={500}
-                    numPoints={5}
-                    innerRadius={20}
-                    outerRadius={40}
-                    fill="#89b717"
-                    opacity={0.8}
-                  />
-                </Group>
-                <Group id="giftest">
-                  {gifData &&
-                    gifData.map((each, idx) => (
-                      <Group
-                        key={each.id}
-                        ref={(vref) => (gifGroupRefs.current[each.id] = vref)}
-                        x={each.x}
-                        y={each.y}
-                        width={each.width}
-                        height={each.height}
-                        opacity={idx === 0 ? 1 : 0}
-                      >
-                        <GsapKonvaGifTest
-                          src={each.src}
+                          ref={(vref) =>
+                            (videoGroupRefs.current[eachVid.id] = vref)
+                          }
+                          x={eachVid.x}
+                          y={eachVid.y}
+                          width={eachVid.width}
+                          opacity={idx === 0 ? 1 : 0}
+                        >
+                          <GsapKonvaVideoAnimTest
+                            src={eachVid.src}
+                            key={eachVid.id}
+                            ref={(vref) =>
+                              (videoRefs.current[eachVid.id] = vref)
+                            }
+                          />
+                        </Group>
+                      ))}
+                    {/* <KonvaVideoAnim src={val.src} play={play} /> */}
+                  </Group>
+                  <Group id="shapes">
+                    <Circle x={200} y={100} radius={50} fill="green" />
+                    <Star
+                      x={400}
+                      y={400}
+                      numPoints={5}
+                      innerRadius={20}
+                      outerRadius={40}
+                      fill="#89b717"
+                      opacity={0.8}
+                    />
+                  </Group>
+                  <Group id="shapes2">
+                    <Circle x={400} y={300} radius={50} fill="green" />
+                    <Star
+                      x={600}
+                      y={500}
+                      numPoints={5}
+                      innerRadius={20}
+                      outerRadius={40}
+                      fill="#89b717"
+                      opacity={0.8}
+                    />
+                  </Group>
+                  <Group id="giftest">
+                    {gifData &&
+                      gifData.map((each, idx) => (
+                        <Group
                           key={each.id}
-                          ref={(vref) => (gifRefs.current[each.id] = vref)}
+                          ref={(vref) => (gifGroupRefs.current[each.id] = vref)}
+                          x={each.x}
+                          y={each.y}
                           width={each.width}
                           height={each.height}
-                        />
-                        {/* <GsapKonvaVideoAnimTest
+                          opacity={idx === 0 ? 1 : 0}
+                        >
+                          <GsapKonvaGifTest
+                            src={each.src}
+                            key={each.id}
+                            ref={(vref) => (gifRefs.current[each.id] = vref)}
+                            width={each.width}
+                            height={each.height}
+                          />
+                          {/* <GsapKonvaVideoAnimTest
                           src={each.src}
                           key={each.id}
                           ref={(vref) => (videoRefs.current[eachVid.id] = vref)}
                         /> */}
-                      </Group>
-                    ))}
-                </Group>
-              </Layer>
-            </Stage>
+                        </Group>
+                      ))}
+                  </Group>
+                </Layer>
+              </Stage>
+            </Flex>
           </Flex>
         </Flex>
       </Flex>

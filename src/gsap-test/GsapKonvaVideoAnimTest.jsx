@@ -10,9 +10,10 @@ const GsapKonvaVideoAnimTest = React.forwardRef(({ src }, ref) => {
   const [size, setSize] = React.useState({ width: 50, height: 50 });
   const [current, setCurrent] = useState(false);
   const anim = React.useRef(null);
+  const videoElement = React.useRef(null);
 
   // we need to use "useMemo" here, so we don't create new video elment on any render
-  const videoElement = React.useMemo(() => {
+  videoElement.current = React.useMemo(() => {
     const element = document.createElement("video");
     element.src = src;
     element.crossOrigin = "anonymous";
@@ -20,20 +21,17 @@ const GsapKonvaVideoAnimTest = React.forwardRef(({ src }, ref) => {
   }, [src]);
 
   const handlePause = () => {
-    if (videoElement) {
+    if (videoElement.current) {
       console.log("pause the video now");
-      videoElement.pause();
-      anim.current.stop();
+      videoElement.current.pause();
       setPlay(() => false);
     }
   };
 
   const handleResume = () => {
-    if (videoElement && current) {
+    if (videoElement.current && current) {
       console.log("pause the video now");
-      videoElement.play();
-      anim.current.start();
-      updateAnim();
+      videoElement.current.play();
       setPlay(() => true);
     }
   };
@@ -53,12 +51,10 @@ const GsapKonvaVideoAnimTest = React.forwardRef(({ src }, ref) => {
       // return our API
       return {
         start(startAt) {
-          if (videoElement) {
+          if (videoElement.current) {
             console.log("onStart the video now", startAt);
-            videoElement.currentTime = startAt;
-            videoElement.play();
-            anim.current.start();
-            updateAnim();
+            videoElement.current.currentTime = startAt;
+            videoElement.current.play();
             setPlay(() => true);
             setCurrent(() => true);
           }
@@ -78,21 +74,38 @@ const GsapKonvaVideoAnimTest = React.forwardRef(({ src }, ref) => {
   React.useEffect(() => {
     const onload = function () {
       setSize({
-        width: videoElement.videoWidth,
-        height: videoElement.videoHeight,
+        width: videoElement.current.videoWidth,
+        height: videoElement.current.videoHeight,
       });
     };
-    videoElement.addEventListener("loadedmetadata", onload);
-    return () => {
-      videoElement.removeEventListener("loadedmetadata", onload);
+
+    const onCanPlay = function () {
+      console.log("canPlaythroug runing");
+      const cwidth = videoElement.current.videoWidth;
+      const cheight = videoElement.current.videoHeight;
+      if (imageRef.current) {
+        const ctx = imageRef.current.getContext("2d");
+        videoElement.current.currentTime = 0.1;
+        // // ctx.putImageData(videoElement.current, 0, 0);
+        // ctx.drawImage(videoElement, 0, 0, cwidth, cheight);
+        // // imageRef.current.cache();
+        // imageRef.current.getLayer().batchDraw();
+      }
     };
-  }, [videoElement]);
+
+    videoElement.current.addEventListener("loadedmetadata", onload);
+    videoElement.current.addEventListener("loadeddata", onCanPlay);
+    return () => {
+      videoElement.current.removeEventListener("loadedmetadata", onload);
+      videoElement.current.removeEventListener("loadeddata", onCanPlay);
+    };
+  }, []);
 
   // use Konva.Animation to redraw a layer
   React.useEffect(() => {
     const layer = imageRef.current.getLayer();
     anim.current = new Konva.Animation(() => {}, layer);
-  }, [videoElement]);
+  }, []);
 
   const updateAnim = () => {
     const layer = imageRef.current.getLayer();
@@ -104,10 +117,10 @@ const GsapKonvaVideoAnimTest = React.forwardRef(({ src }, ref) => {
 
   React.useEffect(() => {
     if (play) {
-      videoElement.play();
+      videoElement.current.play();
       anim.current.start();
     } else {
-      videoElement.pause();
+      videoElement.current.pause();
       if (anim.current) {
         anim.current.stop();
       }
@@ -118,7 +131,7 @@ const GsapKonvaVideoAnimTest = React.forwardRef(({ src }, ref) => {
   return (
     <Image
       ref={imageRef}
-      image={videoElement}
+      image={videoElement.current}
       x={20}
       y={20}
       stroke="red"
